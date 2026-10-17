@@ -1,6 +1,8 @@
 # Cloudflare Pages release procedure
 
-Status: prepared locally; no external project, deployment, or repository push has been created. MIT licensing is approved and active. GitHub publication and deployment still require the owner's explicit approval.
+Status: MIT is active and source is published at https://github.com/Zarett/csv-rescue with the owner's approval. The initial release commit is `c2b1341`. No Cloudflare project or deployment has been created; Cloudflare deployment still requires separate approval.
+
+The GitHub publication steps below are retained as a reference and are already completed. Continue with Pages dashboard settings only after deployment approval.
 
 This is a static Vite application. Cloudflare Pages fits the current implementation with no server functions, credentials in source, or additional production dependency.
 
@@ -13,7 +15,7 @@ This is a static Vite application. Cloudflare Pages fits the current implementat
 
 ## Exact GitHub publication steps (run only after explicit approval)
 
-1. Confirm the GitHub owner, repository name `csv-rescue`, public visibility, and the Cloudflare account. MIT is already approved. No destination has been created or reserved.
+1. Confirm the GitHub owner, repository name `csv-rescue`, public visibility, and the Cloudflare account. MIT is already approved. The GitHub destination is now `Zarett/csv-rescue`; the Cloudflare account/project remains unselected.
 2. Verify the active `LICENSE`, owner-approved attribution, and MIT package/lockfile metadata. No further license activation is needed.
 3. Run the verification commands above. Check `git status --short` and inspect the proposed source files. The `examples/` and `tests/fixtures/` CSV files are intentionally synthetic fixtures; `.local-data/` and `.codex-remote-attachments/` are private local data and must stay excluded.
 4. Stage only the release source paths, then inspect the staged file list and diff:
@@ -36,6 +38,7 @@ git diff --cached
 | Setting | Value |
 | --- | --- |
 | Project name | `csv-rescue` if available; otherwise choose an owner-approved alternative |
+| GitHub repository | `Zarett/csv-rescue` |
 | Production branch | `main` |
 | Framework | React / Vite |
 | Root directory | Repository root |
@@ -43,7 +46,7 @@ git diff --cached
 | Build output | `dist` |
 | Node version | 24.19.0 (`.node-version`; tested locally) |
 | Runtime bindings | None |
-| Optional build variable | `VITE_GITHUB_URL` — the approved HTTPS GitHub repository URL |
+| Optional build variable | `VITE_GITHUB_URL=https://github.com/Zarett/csv-rescue` |
 
 The application does not need API keys, paid services, authentication, storage, Workers, or Pages Functions. Configure no analytics or third-party scripts. The optional GitHub URL is public build configuration, never a secret.
 

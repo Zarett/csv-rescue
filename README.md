@@ -139,7 +139,7 @@ Unit tests cover supported parsing formats, the original 16 cleanup-toggle combi
 
 Prepared for **Cloudflare Pages**: build **`npm run build`**, output **`dist`**, Node version in `.node-version`. No runtime bindings or secrets are needed. See [deployment procedure](DEPLOYMENT.md) for configuration and post-deployment checks.
 
-No repository has been pushed and no application has been deployed. Publication requires the owner's explicit approval.
+Source repository: [Zarett/csv-rescue](https://github.com/Zarett/csv-rescue), published with the owner's approval. The application has not been deployed to Cloudflare Pages; deployment requires separate approval.
 
 ## Limits and roadmap
 

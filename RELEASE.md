@@ -1,6 +1,6 @@
 # Release-readiness report
 
-**CSV Rescue 1.0.0 — 17 October 2026. Technical release readiness: PASS. Public publication: BLOCKED pending owner approval and destination selection.**
+**CSV Rescue 1.0.0 — 17 October 2026. Technical release readiness: PASS. GitHub source publication: COMPLETE with owner approval. Cloudflare application deployment: BLOCKED pending separate approval and account selection.**
 
 ## Verification results
 
@@ -105,3 +105,7 @@ The release is prepared for review. Publishing remains on hold pending the owner
 5. Verify the actual HTTPS URL, headers, asset/deep-link loading, and synthetic CSV workflows on desktop and Android before portfolio sharing. Git integration automatically deploys subsequent approved pushes; branch previews can also be public.
 
 Detailed commands, source paths, configuration, official references, and live smoke checks are in `DEPLOYMENT.md`. No further product feature work is required for this release candidate. Public publication approval and post-deployment validation remain outstanding.
+
+## GitHub publication completed
+
+The owner subsequently authorized GitHub publication. Created the public repository https://github.com/Zarett/csv-rescue and pushed the prepared release commit `c2b134101d9ac2a54ea1fed3111e3cfc4252da7b` to `main`. Verified that the remote branch matched the local release commit. MIT copyright is attributed to Yigit Can Guler. Existing credential-manager authentication was used; no credentials were saved in project files. Earlier no-publication statements in this report describe the pre-publication audit. Cloudflare deployment is still on hold; no hosted application URL has been claimed.
