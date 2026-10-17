@@ -1,0 +1,16 @@
+node_modules/
+dist/
+.tools/
+test-results/
+playwright-report/
+*.tsbuildinfo
+.env*
+!.env.example
+.local-data/
+.codex-remote-attachments/
+coverage/
+*.log
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/

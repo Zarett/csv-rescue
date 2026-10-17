@@ -1,0 +1,5 @@
+id,name,email,age,city,amount,notes
+1,Test One,one@example.com,1,Town,0,"unterminated
+2,Test Two,two@example.com,2,Town,0,next
+3,"Valid ""quote""",three@example.com,3,Town,0,note
+4,Test Four,four@example.com,4,Town,0,note,EXTRA
