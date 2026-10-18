@@ -16,7 +16,7 @@ createServer(async (req,res)=>{
     const path = resolve(root, '.' + pathname);
     if(path!==root && !path.startsWith(root+sep)) {res.writeHead(403).end();return;}
     const proxy=fileProxies.find(([from])=>from===pathname);
-    if(proxy){const target=resolve(root,'.'+proxy[1]);if(!target.startsWith(root+sep)){res.writeHead(403).end();return;}const bytes=await readFile(target);res.writeHead(200,{'Content-Type':types[extname(target)]||'application/octet-stream',...Object.fromEntries(policy)}).end(bytes);return;}
+    if(proxy){let target=resolve(root,'.'+proxy[1]);if(!target.startsWith(root+sep)){res.writeHead(403).end();return;}let bytes;try{bytes=await readFile(target);}catch(error){if(extname(target))throw error;target+='.html';bytes=await readFile(target);}res.writeHead(200,{'Content-Type':types[extname(target)]||'application/octet-stream',...Object.fromEntries(policy)}).end(bytes);return;}
     // Model Pages' physical HTML routes, normalization and top-level 404.html.
     if(pathname.endsWith('/index.html')) {res.writeHead(308,{Location:pathname.slice(0,-10)+url.search}).end();return;}
     if(pathname.endsWith('.html')) {
