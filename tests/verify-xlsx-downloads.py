@@ -7,6 +7,7 @@ Never used by the web application; never opens user uploads.
 import glob
 import re
 import sys
+from pathlib import Path
 import zipfile
 import xml.etree.ElementTree as ET
 
@@ -17,7 +18,7 @@ EXPECTED = [
 ]
 NS = {'s': 'http://schemas.openxmlformats.org/spreadsheetml/2006/main'}
 paths = glob.glob('test-results/**/sample.xlsx', recursive=True)
-assert len(paths) == 2, 'Run both desktop and mobile browser tests first.'
+assert all(any(Path(path).parent.name.endswith('-' + project) for path in paths) for project in ['desktop', 'mobile']), 'Run both desktop and mobile browser tests first.'
 for path in paths:
     with zipfile.ZipFile(path) as archive:
         assert archive.testzip() is None, 'Invalid ZIP checksum'
@@ -36,7 +37,7 @@ for path in paths:
         assert list(workbook.active.values) == [tuple(row) for row in EXPECTED]
         assert all(c.data_type == 's' for row in workbook.active for c in row)
 integrity_paths = glob.glob('test-results/**/integrity.xlsx', recursive=True)
-assert len(integrity_paths) == 2, 'Run both desktop and mobile integrity regressions first.'
+assert all(any(Path(path).parent.name.endswith('-' + project) for path in integrity_paths) for project in ['desktop', 'mobile']), 'Run both desktop and mobile integrity regressions first.'
 for path in integrity_paths:
     with zipfile.ZipFile(path) as archive:
         assert archive.testzip() is None

@@ -4,11 +4,12 @@ const routes=[
  {path:'/',title:'CSV Rescue — Free CSV Repair & Conversion Tools',h1:'Your files.Fixed and converted.'},
  {path:'/csv-repair/',title:'CSV Repair & Cleaner — Free, Private | CSV Rescue',h1:'CSV Repair & Cleaner'},
  {path:'/csv-to-xlsx/',title:'CSV to Excel Converter — Preserve Text | CSV Rescue',h1:'CSV to Excel converter'},
+ {path:'/xlsx-to-csv/',title:'Excel to CSV Converter — XLSX & XLS, Private | CSV Rescue',h1:'Excel to CSV converter'},
  {path:'/guides/preserve-leading-zeros/',title:'How to Keep Leading Zeros in Excel & CSV | CSV Rescue',h1:'How to Keep Leading Zeros When Opening CSV in Excel'}
 ];
-test('homepage is a static two-tool directory with native navigation',async({page},info)=>{
+test('homepage is a static three-tool directory with native navigation',async({page},info)=>{
  const requests:string[]=[];page.on('request',r=>requests.push(r.url()));await page.goto('/');
- await expect(page.getByRole('heading',{level:1})).toHaveText('Your files.Fixed and converted.');await expect(page.locator('.tool-card')).toHaveCount(2);
+ await expect(page.getByRole('heading',{level:1})).toHaveText('Your files.Fixed and converted.');await expect(page.locator('.tool-card')).toHaveCount(3);
  await expect(page.getByRole('button',{name:/Browse files/})).toHaveCount(0);await expect(page.locator('input[type=file]')).toHaveCount(0);
  expect(requests.filter(url=>/\.js(?:\?|$)/.test(url))).toEqual([]);expect(requests.every(url=>url.startsWith('http://127.0.0.1:4173/'))).toBe(true);
  await page.screenshot({path:info.outputPath('homepage.png'),fullPage:true});
@@ -23,13 +24,13 @@ test('all canonical pages have static content, unique metadata, social cards and
   await expect(page.locator('meta[property="og:url"]')).toHaveAttribute('content',host+route.path);await expect(page.locator('meta[name="twitter:card"]')).toHaveAttribute('content','summary_large_image');
   const image=await page.locator('meta[property="og:image"]').getAttribute('content');expect(image).toBe(host+'/social-card.png');expect((await request.get('/social-card.png')).headers()['content-type']).toContain('image/png');
   await expect(page.locator(`a[href="${route.path==='/csv-repair/'?'/':'/csv-repair/'}"]`).first()).toBeVisible();await expect(page.locator('a[href="/csv-to-xlsx/"]').first()).toBeVisible();
-  if(['/csv-repair/','/csv-to-xlsx/'].includes(route.path))await expect(page.getByText(/JavaScript is required|needs JavaScript/)).toBeVisible();
- }expect(descriptions.size).toBe(4);
+  if(['/csv-repair/','/csv-to-xlsx/','/xlsx-to-csv/'].includes(route.path))await expect(page.getByText(/JavaScript is required|needs JavaScript/)).toBeVisible();
+ }expect(descriptions.size).toBe(5);
  await page.goto('http://127.0.0.1:4173/');await page.getByRole('link',{name:'Repair CSV',exact:true}).click();await expect(page.getByRole('heading',{level:1})).toHaveText('CSV Repair & Cleaner');
  }finally{await context.close();}
 });
 test('unknown routes and missing resources return real 404 responses, not an app',async({request,page})=>{
- for(const path of ['/not-a-page/','/review/deep-link/','/csv-repair/missing/','/xlsx-to-csv/','/xls-to-csv/','/assets/missing.js','/missing.csv','/missing.html']){
+ for(const path of ['/not-a-page/','/review/deep-link/','/csv-repair/missing/','/not-released-tool/','/xls-to-csv/','/assets/missing.js','/missing.csv','/missing.html']){
   const response=await request.get(path);expect(response.status(),path).toBe(404);const html=await response.text();expect(html).toContain('name="robots" content="noindex"');expect(html).not.toContain('id="root"');expect(html).not.toContain('<script');
  }
  await page.goto('/not-a-page/');await page.getByRole('link',{name:'CSV Repair & Cleaner',exact:true}).click();await expect(page).toHaveURL('/csv-repair/');
@@ -40,8 +41,8 @@ test('canonical normalization preserves queries and does not redirect the homepa
  }
  const response=await request.get('/',{maxRedirects:0});expect(response.status()).toBe(200);expect(response.headers().location).toBeUndefined();
 });
-test('sitemap contains exactly the four released canonical pages and all are indexable',async({request})=>{
- const response=await request.get('/sitemap.xml');expect(response.status()).toBe(200);const sitemap=await response.text();expect([...sitemap.matchAll(/<loc>(.*?)<\/loc>/g)].map(m=>m[1])).toEqual(routes.map(r=>host+r.path));
+test('sitemap contains exactly the five released canonical pages and all are indexable',async({request})=>{
+ const response=await request.get('/sitemap.xml');expect(response.status()).toBe(200);const sitemap=await response.text();expect([...sitemap.matchAll(/<loc>(.*?)<\/loc>/g)].map(m=>m[1]).sort()).toEqual(routes.map(r=>host+r.path).sort());
  for(const {path} of routes){const response=await request.get(path);expect(response.status()).toBe(200);expect(response.headers()['x-robots-tag']||'').not.toContain('noindex');expect(await response.text()).not.toMatch(/name="robots"[^>]*noindex/);}
  const robots=await request.get('/robots.txt');expect(await robots.text()).toContain('Allow: /');expect(await robots.text()).toContain('Sitemap: '+host+'/sitemap.xml');
 });

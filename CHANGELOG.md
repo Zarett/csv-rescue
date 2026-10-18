@@ -1,3 +1,14 @@
+# Excel to CSV — release approved 18 October 2026
+
+- Add one `/xlsx-to-csv/` tool supporting XLSX and Excel 97–2003 XLS, worksheet selection, preview and CSV delimiter options.
+- Offer explicit formatted-text/underlying-value modes and opt-in spreadsheet-safe value changes. Use saved formula results and block missing caches.
+- Preserve original bytes and keep processing in a cancellable same-origin worker with input, expansion, dimension, output and time limits.
+- Work around reader Unicode-reference truncation and double string decoding in temporary OOXML input; no uploaded workbook is modified.
+- Add static metadata, canonical URL, sitemap entry, homepage discovery, independent fixtures and full regression tests. No new dependencies, backend or tracking.
+- Final validation: block missing XLSX string/typeless formula caches and missing legacy XLS STRING records; retain explicitly cached empty results. Add direct mobile navigation to the new converter.
+- Release checks: 188 unit/component tests, 84 desktop/mobile browser tests and 25 Android Chrome emulation checks passed; TypeScript, production build and both dependency audits passed.
+- Approved for publication through the existing main-branch Cloudflare Pages Git deployment.
+
 # CSV Rescue 1.2.0 — multi-tool homepage and SEO foundation
 
 Release approved 18 October 2026.

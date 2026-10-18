@@ -1,0 +1,3 @@
+.excel-safe{display:flex;gap:12px;align-items:flex-start;min-height:44px;line-height:1.6}.excel-safe input{margin-top:6px;width:18px;height:18px;flex-shrink:0}.conversion-tool select{max-width:100%;min-width:0}.conversion-tool .converter-delimiter{flex-wrap:wrap}.conversion-tool>.table-scroll{margin:20px 0}
+
+.conversion-content ol{list-style:decimal;padding-left:24px}

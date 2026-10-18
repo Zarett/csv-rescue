@@ -7,7 +7,8 @@ const server = await createServer({ mode: 'production', server: { middlewareMode
 try {
   for (const { source, path, id } of [
     { source: '/src/App.tsx', path: 'dist/csv-repair/index.html', id: 'root' },
-    { source: '/src/conversion/Converter.tsx', path: 'dist/csv-to-xlsx/index.html', id: 'converter' }
+    { source: '/src/conversion/Converter.tsx', path: 'dist/csv-to-xlsx/index.html', id: 'converter' },
+    { source: '/src/excel/ExcelConverter.tsx', path: 'dist/xlsx-to-csv/index.html', id: 'excel-converter' }
   ]) {
     const { default: Component } = await server.ssrLoadModule(source);
     const html = await readFile(path, 'utf8');

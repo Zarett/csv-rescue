@@ -29,7 +29,7 @@ test('guide is discoverable, keyboard accessible and readable on narrow screens'
 
 test('guide route normalizes correctly and related nonexistent pages stay 404',async({request})=>{
  for(const from of [path.slice(0,-1),path+'index.html']){const response=await request.get(from+'?test=1',{maxRedirects:0});expect(response.status()).toBe(308);expect(response.headers().location).toBe(path+'?test=1');}
- for(const missing of ['/guides/','/guides/missing/','/guides/preserve-leading-zeros/missing.js','/xlsx-to-csv/','/xls-to-csv/']){const response=await request.get(missing);expect(response.status()).toBe(404);expect(await response.text()).toContain('name="robots" content="noindex"');}
+ for(const missing of ['/guides/','/guides/missing/','/guides/preserve-leading-zeros/missing.js','/not-released-tool/','/xls-to-csv/']){const response=await request.get(missing);expect(response.status()).toBe(404);expect(await response.text()).toContain('name="robots" content="noindex"');}
  const sitemap=await(await request.get('/sitemap.xml')).text();expect(sitemap.match(/https:\/\/csv-rescue-app.pages.dev\/guides\/preserve-leading-zeros\//g)).toHaveLength(1);
 });
 

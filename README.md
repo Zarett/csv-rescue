@@ -16,6 +16,12 @@ Built as a portfolio product in AI-assisted product development: deterministic l
 
 The static `/guides/preserve-leading-zeros/` article explains text imports in Excel, the existing CSV-to-XLSX workflow, synthetic identifier examples, verification, and recovery limits. It is linked from the homepage and converter and included in the sitemap. It adds no JavaScript, processing dependencies or tracking. See [guide implementation report](docs/LEADING_ZEROS_GUIDE.md). Approved for publication through the existing Cloudflare Pages Git workflow.
 
+## Excel to CSV
+
+A single `/xlsx-to-csv/` tool accepts XLSX and Excel 97–2003 XLS workbooks. Select one worksheet, preview formatted text (default) or underlying values, choose a delimiter, and optionally enable clearly counted spreadsheet-safe changes. Parsing stays in a cancellable, lazy-loaded browser worker; original downloads remain unchanged. Missing formula caches block download. See [implementation and security report](docs/EXCEL_TO_CSV_RELEASE.md) for limits, tests and known risks. See the [final release validation](docs/EXCEL_TO_CSV_FINAL_VALIDATION.md) for the latest checks and resolved formula-cache cases. Approved for publication through the existing Cloudflare Pages Git workflow.
+
+To independently check actual CSV browser downloads after E2E, run `python tests/verify-excel-csv-downloads.py` (Python standard library only). The intentionally synthetic XLSX fixture was created with already-installed openpyxl; the BIFF8/CFB fixture is generated independently in test source.
+
 ## Features
 
 - Detect duplicate records, edge whitespace, missing values, empty rows/columns, uneven field counts, and duplicate headers.
@@ -197,7 +203,7 @@ Source repository: [ycguler/csv-rescue](https://github.com/ycguler/csv-rescue). 
 - No manual cell editing, inferred missing values, schema validation, email validation, or date/age normalization.
 - Chromium desktop/mobile tests and selected contrast checks are not certification of every browser or assistive technology.
 
-Future work (not implemented): encoding conversion, type detection, date/country/phone normalization, column mapping, CSV comparisons, reusable recipes, batch processing, JSON and Excel import, workers for the existing CSV repair workflow, and manual-edit history.
+Future work (not implemented): encoding conversion, type detection, date/country/phone normalization, column mapping, CSV comparisons, reusable recipes, batch processing, JSON import, workers for the existing CSV repair workflow, and manual-edit history.
 
 ## License
 
