@@ -3,7 +3,8 @@ const host='https://csv-rescue-app.pages.dev';
 const routes=[
  {path:'/',title:'CSV Rescue — Free CSV Repair & Conversion Tools',h1:'Your files.Fixed and converted.'},
  {path:'/csv-repair/',title:'CSV Repair & Cleaner — Free, Private | CSV Rescue',h1:'CSV Repair & Cleaner'},
- {path:'/csv-to-xlsx/',title:'CSV to Excel Converter — Preserve Text | CSV Rescue',h1:'CSV to Excel converter'}
+ {path:'/csv-to-xlsx/',title:'CSV to Excel Converter — Preserve Text | CSV Rescue',h1:'CSV to Excel converter'},
+ {path:'/guides/preserve-leading-zeros/',title:'How to Keep Leading Zeros in Excel & CSV | CSV Rescue',h1:'How to Keep Leading Zeros When Opening CSV in Excel'}
 ];
 test('homepage is a static two-tool directory with native navigation',async({page},info)=>{
  const requests:string[]=[];page.on('request',r=>requests.push(r.url()));await page.goto('/');
@@ -22,8 +23,8 @@ test('all canonical pages have static content, unique metadata, social cards and
   await expect(page.locator('meta[property="og:url"]')).toHaveAttribute('content',host+route.path);await expect(page.locator('meta[name="twitter:card"]')).toHaveAttribute('content','summary_large_image');
   const image=await page.locator('meta[property="og:image"]').getAttribute('content');expect(image).toBe(host+'/social-card.png');expect((await request.get('/social-card.png')).headers()['content-type']).toContain('image/png');
   await expect(page.locator(`a[href="${route.path==='/csv-repair/'?'/':'/csv-repair/'}"]`).first()).toBeVisible();await expect(page.locator('a[href="/csv-to-xlsx/"]').first()).toBeVisible();
-  if(route.path!=='/')await expect(page.getByText(/JavaScript is required|needs JavaScript/)).toBeVisible();
- }expect(descriptions.size).toBe(3);
+  if(['/csv-repair/','/csv-to-xlsx/'].includes(route.path))await expect(page.getByText(/JavaScript is required|needs JavaScript/)).toBeVisible();
+ }expect(descriptions.size).toBe(4);
  await page.goto('http://127.0.0.1:4173/');await page.getByRole('link',{name:'Repair CSV',exact:true}).click();await expect(page.getByRole('heading',{level:1})).toHaveText('CSV Repair & Cleaner');
  }finally{await context.close();}
 });
@@ -39,7 +40,7 @@ test('canonical normalization preserves queries and does not redirect the homepa
  }
  const response=await request.get('/',{maxRedirects:0});expect(response.status()).toBe(200);expect(response.headers().location).toBeUndefined();
 });
-test('sitemap contains exactly the three released canonical pages and all are indexable',async({request})=>{
+test('sitemap contains exactly the four released canonical pages and all are indexable',async({request})=>{
  const response=await request.get('/sitemap.xml');expect(response.status()).toBe(200);const sitemap=await response.text();expect([...sitemap.matchAll(/<loc>(.*?)<\/loc>/g)].map(m=>m[1])).toEqual(routes.map(r=>host+r.path));
  for(const {path} of routes){const response=await request.get(path);expect(response.status()).toBe(200);expect(response.headers()['x-robots-tag']||'').not.toContain('noindex');expect(await response.text()).not.toMatch(/name="robots"[^>]*noindex/);}
  const robots=await request.get('/robots.txt');expect(await robots.text()).toContain('Allow: /');expect(await robots.text()).toContain('Sitemap: '+host+'/sitemap.xml');

@@ -12,6 +12,10 @@ Version **1.2.0** · [Homepage/SEO release report](docs/SEO_HOMEPAGE_RELEASE.md)
 
 Built as a portfolio product in AI-assisted product development: deterministic local processing, explicit human review for ambiguous repairs, and tested data-preservation boundaries. No AI model or paid API runs in the application.
 
+## Educational guide
+
+The static `/guides/preserve-leading-zeros/` article explains text imports in Excel, the existing CSV-to-XLSX workflow, synthetic identifier examples, verification, and recovery limits. It is linked from the homepage and converter and included in the sitemap. It adds no JavaScript, processing dependencies or tracking. See [guide implementation report](docs/LEADING_ZEROS_GUIDE.md). Approved for publication through the existing Cloudflare Pages Git workflow.
+
 ## Features
 
 - Detect duplicate records, edge whitespace, missing values, empty rows/columns, uneven field counts, and duplicate headers.
