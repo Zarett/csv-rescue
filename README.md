@@ -1,14 +1,14 @@
 # CSV Rescue
 
-**Clean data. No headaches.**
+**Your files. Fixed and converted.**
 
-A lightweight CSV cleaner that runs entirely in your browser. Upload a messy file, review its issues, choose your fixes, and download the result. Free to use, with no accounts, backend, or tracking.
+A lightweight collection of CSV tools that runs entirely in your browser. Repair and clean CSV files with reviewed changes, or convert CSV to Excel while preserving text. Free to use, with no accounts, backend, or tracking.
 
-Live CSV repair: [csv-rescue-app.pages.dev](https://csv-rescue-app.pages.dev/). Version 1.1.0 adds the standalone [CSV to Excel converter](https://csv-rescue-app.pages.dev/csv-to-xlsx/). See [conversion evaluation and release report](docs/CSV_TO_XLSX_RELEASE.md).
+Website: [csv-rescue-app.pages.dev](https://csv-rescue-app.pages.dev/). Version 1.2.0 introduces the tool directory at `/`, [CSV repair at `/csv-repair/`](https://csv-rescue-app.pages.dev/csv-repair/), and [CSV to Excel at `/csv-to-xlsx/`](https://csv-rescue-app.pages.dev/csv-to-xlsx/). See [homepage and SEO release report](docs/SEO_HOMEPAGE_RELEASE.md) and [conversion evaluation](docs/CSV_TO_XLSX_RELEASE.md).
 
-![CSV Rescue upload screen](docs/screenshots/upload-desktop.png)
+![CSV Rescue tool directory](docs/screenshots/homepage-desktop.png)
 
-Version **1.1.0** · [Release summary](CHANGELOG.md) · [QA report](RELEASE.md)
+Version **1.2.0** · [Homepage/SEO release report](docs/SEO_HOMEPAGE_RELEASE.md) · [Release history](CHANGELOG.md)
 
 Built as a portfolio product in AI-assisted product development: deterministic local processing, explicit human review for ambiguous repairs, and tested data-preservation boundaries. No AI model or paid API runs in the application.
 
@@ -32,6 +32,8 @@ npm run dev
 ```
 
 Open the local URL printed by Vite. Stop the server with Ctrl+C.
+
+Choose **Repair CSV** from the homepage or navigate directly to `/csv-repair/`. Production builds prerender both tool interfaces; development mounts them normally. For the production routing and no-JavaScript checks, run `npm run build` followed by `npm run preview`, then open `http://127.0.0.1:4173/`. The preview server models Cloudflare's static routing, redirects and 404 responses and binds only to localhost.
 
 On Windows, reopen PowerShell after installing Node if `node` is not recognized. This checkout also provides a launcher that finds Node on PATH or an existing bundled Codex runtime:
 
@@ -95,6 +97,22 @@ Normal requests to load the static site still reach the hosting provider. Host l
 **Data-preserving export is selected by default** and preserves formula-like values, negative numbers, and the current working field values. The export panel provides explicit radio choices for this mode and spreadsheet-safe mode. Export settings never change uploaded bytes or the working dataset. **Spreadsheet-safe export** intentionally prefixes potentially dangerous formula values with an apostrophe. It covers initial `=`, `+`, `-`, `@`, tab, CR, LF, and whitespace-prefixed formula markers. The export summary counts affected values, including headers and negative numbers: `-5` becomes `'-5`, which may display as text or show its apostrophe in a spreadsheet. Spreadsheet behavior varies; this is not a guarantee of universal spreadsheet safety.
 
 ## Architecture
+
+### Static website and routes
+
+| Route | Purpose |
+| --- | --- |
+| `/` | Static landing page and directory of the two implemented tools; no JavaScript |
+| `/csv-repair/` | Existing repair/cleaning application, migrated from `/` |
+| `/csv-to-xlsx/` | Existing CSV-to-XLSX converter |
+
+Vite emits three physical HTML pages. `scripts/prerender-pages.mjs` uses existing Vite/React server-rendering capabilities **at build time only** to render the initial empty repair and converter views. Browser hydration attaches their existing event handlers and local state. No server/backend is deployed, and uploaded files are never involved in prerendering. A server-only `window` guard keeps the initial repair render safe; browser panel behavior remains the same.
+
+The homepage has native tool links and an independent, small stylesheet. Tool HTML contains visible initial content, navigation, distinct metadata and canonical URLs. Open Graph/social cards use a local PNG. `public/404.html` disables Cloudflare's default SPA fallback; unknown pages and missing assets must return actual 404 statuses. The sitemap lists exactly these three canonical URLs. XLSX/XLS import routes are not published.
+
+**Migration:** `/` stays valid as the new directory and cannot be redirected to repair. Links in this README and tool navigation identify `/csv-repair/` as the repair destination after release. Update portfolio links that specifically promise repair, bookmarks under your control and other editable external references then. Generic product links should continue targeting `/`. No duplicate repair page or cross-canonical workaround is created. The owner approved this migration release; verify live deployment before announcing it.
+
+[Mobile directory preview](docs/screenshots/homepage-mobile.png). Existing repair screenshots below document the workflow; current landing metadata and navigation differ from older screenshots.
 
 ### CSV to XLSX
 
@@ -165,7 +183,7 @@ Unit tests cover supported parsing formats, the original 16 cleanup-toggle combi
 
 Prepared for **Cloudflare Pages**: build **`npm run build`**, output **`dist`**, Node version in `.node-version`. No runtime bindings or secrets are needed. See [deployment procedure](DEPLOYMENT.md) for configuration and post-deployment checks.
 
-Source repository: [Zarett/csv-rescue](https://github.com/Zarett/csv-rescue). The owner deployed v1.0 at [csv-rescue-app.pages.dev](https://csv-rescue-app.pages.dev/). The owner approved the v1.1.0 conversion release; main-branch updates use the existing Cloudflare Pages deployment.
+Source repository: [ycguler/csv-rescue](https://github.com/ycguler/csv-rescue). Version 1.2.0 and its homepage/repair-route migration are approved for publication at [csv-rescue-app.pages.dev](https://csv-rescue-app.pages.dev/). Main-branch updates use the existing Cloudflare Pages deployment.
 
 ## Limits and roadmap
 

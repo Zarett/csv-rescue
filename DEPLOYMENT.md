@@ -1,5 +1,15 @@
 # Cloudflare Pages release procedure
 
+## Version 1.2.0 homepage/SEO migration — release approved
+
+The owner approved the v1.2.0 commit, push and deployment on 18 October 2026. Build command remains `npm run build`, output `dist`. The build now generates `/`, `/csv-repair/` and `/csv-to-xlsx/`, then prerenders both tool interfaces using existing React/Vite at build time. No runtime server, functions, dependencies or CSP changes are needed. Keep devDependencies available during the build.
+
+`public/404.html` must reach `dist/404.html`. Do not add SPA catch-all rewrites. `npm run preview` serves the production build locally with modeled Cloudflare routing/security headers. After an approved deployment, check the three 200 pages, missing pages/assets returning 404, canonical redirects, sitemap, no-JavaScript content, tool hydration, XLSX worker and original downloads. Local simulation is not proof of a live Cloudflare deployment.
+
+The root URL stays a directory, so **do not redirect `/` to `/csv-repair/`**. Update editable links specifically advertising repair to `/csv-repair/`; keep generic portfolio/product links at `/`. The repository reference is now `https://github.com/ycguler/csv-rescue`; the old owner URL redirects. If using `VITE_GITHUB_URL`, prefer the current repository URL. Do not edit external settings or links until release approval.
+
+See [migration release report](docs/SEO_HOMEPAGE_RELEASE.md). The v1.1.0 notes below describe the prior released architecture.
+
 Current update: the owner has deployed v1.0 to `https://csv-rescue-app.pages.dev/`. The owner approved the v1.1.0 CSV-to-XLSX release on 18 October 2026. Its build remains `npm run build`, output `dist`; Vite now emits both `index.html` and `csv-to-xlsx/index.html`. No server functions or new environment variables are required. Verify the new route, sitemap, canonical host, worker download/CSP and original-byte download after deployment. Main-branch pushes trigger the existing Git-integrated deployment; verify successful completion before announcing availability. The older initial-release instructions below are historical.
 
 Status: MIT is active and source is published at https://github.com/Zarett/csv-rescue with the owner's approval. The initial release commit is `c2b1341`. No Cloudflare project or deployment has been created; Cloudflare deployment still requires separate approval.

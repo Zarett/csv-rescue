@@ -1,7 +1,7 @@
 import { readFileSync } from 'node:fs';
 import { test,expect } from '@playwright/test';
 test('quote review gating, fixed baseline statistics, and remaining extra fields',async ({page})=>{
-  await page.goto('/');
+  await page.goto('/csv-repair/');
   const source=readFileSync('tests/fixtures/quote-width.csv');
   await page.getByLabel('Choose CSV file').setInputFiles({name:'quote-width.csv',mimeType:'text/csv',buffer:source});
   await expect(page.getByTestId('original-width')).toContainText('12');await expect(page.getByTestId('proposed-width')).toContainText('12');
@@ -23,7 +23,7 @@ test('quote review gating, fixed baseline statistics, and remaining extra fields
   await expect(page.getByLabel(/Apply suggested quote repairs/)).toBeDisabled();
 });
 test('compact mobile panels retain choices and keep export reachable',async ({page},info)=>{
-  await page.goto('/');
+  await page.goto('/csv-repair/');
   const source=Buffer.from('\uFEFFid,email,age,amount,note\r\n1,invalid,-5,-12.50,"multi\r\nline"\r\n2,test@example.com,200,0,   spaced   \r\n3,missing\r\n4,extra,1,2,note,EXTRA\r\n');
   await page.getByLabel('Choose CSV file').setInputFiles({name:'synthetic.csv',mimeType:'text/csv',buffer:source});
   if(info.project.name==='mobile') {

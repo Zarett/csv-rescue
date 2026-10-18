@@ -6,17 +6,28 @@ const root = resolve('dist');
 const policy = (await readFile(resolve(root,'_headers'),'utf8')).split(/\r?\n/).filter(line=>line.startsWith('  ')).map(line=>{const colon=line.indexOf(':');return [line.slice(0,colon).trim(),line.slice(colon+1).trim()];});
 const types = {'.html':'text/html; charset=utf-8','.js':'text/javascript','.css':'text/css','.svg':'image/svg+xml','.png':'image/png','.txt':'text/plain; charset=utf-8','.xml':'application/xml'};
 createServer(async (req,res)=>{
+  const notFound=async()=>res.writeHead(404,{'Content-Type':'text/html; charset=utf-8',...Object.fromEntries(policy)}).end(await readFile(resolve(root,'404.html')));
   try {
-    const path = resolve(root, '.' + decodeURIComponent(new URL(req.url,'http://localhost').pathname));
+    const url=new URL(req.url,'http://localhost');
+    const pathname=decodeURIComponent(url.pathname);
+    const path = resolve(root, '.' + pathname);
     if(path!==root && !path.startsWith(root+sep)) {res.writeHead(403).end();return;}
-    // Model Pages' default SPA fallback (no top-level 404.html is shipped).
+    // Model Pages' physical HTML routes, normalization and top-level 404.html.
+    if(pathname.endsWith('/index.html')) {res.writeHead(308,{Location:pathname.slice(0,-10)+url.search}).end();return;}
+    if(pathname.endsWith('.html')) {
+      try {await readFile(path);res.writeHead(308,{Location:pathname.slice(0,-5)+url.search}).end();return;} catch {await notFound();return;}
+    }
     let file = path;
     if(path===root || !extname(path)) {
       const candidate=resolve(path,'index.html');
-      try { await readFile(candidate); file=candidate; } catch { file=resolve(root,'index.html'); }
+      let directory=true;
+      try { await readFile(candidate); file=candidate; } catch {
+        try {file=path+'.html';await readFile(file);directory=false;} catch {await notFound();return;}
+      }
+      if(directory && !pathname.endsWith('/')) {res.writeHead(308,{Location:pathname+'/'+url.search}).end();return;}
     }
-    if(!types[extname(file)]) {res.writeHead(404).end();return;}
+    if(!types[extname(file)]) {await notFound();return;}
     const bytes = await readFile(file);
     res.writeHead(200,{'Content-Type':types[extname(file)],...Object.fromEntries(policy)}).end(bytes);
-  } catch {res.writeHead(404).end();}
+  } catch {await notFound();}
 }).listen(4173,'127.0.0.1',()=>console.log('Production QA: http://127.0.0.1:4173'));

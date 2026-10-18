@@ -1,3 +1,14 @@
+# CSV Rescue 1.2.0 — multi-tool homepage and SEO foundation
+
+Release approved 18 October 2026.
+
+- Replace the root repair entry with a static, responsive tool directory. Migrate the same repair app to `/csv-repair/`; preserve conversion at `/csv-to-xlsx/`.
+- Prerender initial tool interfaces at build time and hydrate their existing behavior; homepage needs no JavaScript.
+- Add genuine static 404 handling and a production preview that models physical routes and normalization.
+- Add unique metadata/canonicals, local social-sharing art and a three-page sitemap. Future converters remain unpublished.
+- Update navigation, repair destinations, documentation and route/SEO/accessibility regression tests. No processing or export semantics changed; no dependencies or analytics added.
+- Root cannot redirect to repair because it remains the homepage. Prominent repair links and updated editable references mitigate the migration. The owner approved commit, push and deployment.
+
 # CSV Rescue 1.1.0 — CSV to Excel conversion
 
 Release approved 18 October 2026.

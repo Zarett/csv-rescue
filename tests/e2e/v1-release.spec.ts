@@ -1,7 +1,7 @@
 import {test,expect} from '@playwright/test';
 test('production direct navigation loads local assets with security headers',async({page,request})=>{
  const errors:string[]=[];page.on('pageerror',error=>errors.push(error.message));
- const response=await page.goto('/review/deep-link/');expect(response?.status()).toBe(200);
+ const response=await page.goto('/csv-repair/');expect(response?.status()).toBe(200);
  await expect(page.getByRole('button',{name:/Browse files/})).toBeVisible();
  const assets=await page.locator('script[src],link[rel="stylesheet"],link[rel="icon"]').evaluateAll(elements=>elements.map(el=>el.getAttribute('src')||el.getAttribute('href')!));
  expect(assets.length).toBeGreaterThanOrEqual(3);
@@ -10,7 +10,7 @@ test('production direct navigation loads local assets with security headers',asy
  await page.getByRole('link',{name:'CSV Rescue home',exact:true}).click();await expect(page).toHaveURL('/');expect(errors).toEqual([]);
 });
 test('export modes default to preserving negative values and never mutate working data or original bytes',async({page})=>{
- await page.goto('/');const source=Buffer.from('\uFEFFid,age,amount,note\r\n1,-5,-12.50,"Español 😀, quoted"\r\n2,0,1,"=SUM(1,2)"\r\n');
+ await page.goto('/csv-repair/');const source=Buffer.from('\uFEFFid,age,amount,note\r\n1,-5,-12.50,"Español 😀, quoted"\r\n2,0,1,"=SUM(1,2)"\r\n');
  await page.getByLabel('Choose CSV file').setInputFiles({name:'synthetic.csv',mimeType:'text/csv',buffer:source});
  const preserve=page.getByRole('radio',{name:'Data-preserving export',exact:true});const safe=page.getByRole('radio',{name:'Spreadsheet-safe export',exact:true});
  await expect(preserve).toBeChecked();await expect(safe).not.toBeChecked();

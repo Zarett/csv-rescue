@@ -13,9 +13,9 @@ test('worker preserves BOM-prefixed field text and overlapping OOXML escapes',as
  expect((await bytes(page,'Download original unchanged')).bytes).toEqual(input);
 });
 test('static landing HTML, metadata, canonical, sitemap and navigation',async({page,request})=>{
- const response=await request.get('/csv-to-xlsx/'),html=await response.text();expect(response.status()).toBe(200);expect(html).toContain('CSV to Excel Converter — Free & Private');expect(html).toContain('How to convert CSV to Excel');expect(html).toContain('https://csv-rescue-app.pages.dev/csv-to-xlsx/');expect(response.headers()['content-security-policy']).toContain("connect-src 'none'");
+ const response=await request.get('/csv-to-xlsx/'),html=await response.text();expect(response.status()).toBe(200);expect(html).toContain('CSV to Excel Converter — Preserve Text');expect(html).toContain('How to convert CSV to Excel');expect(html).toContain('https://csv-rescue-app.pages.dev/csv-to-xlsx/');expect(response.headers()['content-security-policy']).toContain("connect-src 'none'");
  expect(await(await request.get('/sitemap.xml')).text()).toContain('https://csv-rescue-app.pages.dev/csv-to-xlsx/');expect(await(await request.get('/robots.txt')).text()).toContain('Sitemap:');
- await page.goto('/');await page.getByRole('link',{name:'CSV to Excel',exact:true}).click();await expect(page).toHaveURL('/csv-to-xlsx/');await expect(page.getByRole('heading',{level:1})).toHaveText('CSV to Excel converter');await page.getByRole('link',{name:'CSV repair',exact:true}).click();await expect(page.getByRole('button',{name:/Browse files/})).toBeVisible();
+ await page.goto('/');await page.getByRole('link',{name:'Convert to Excel',exact:true}).click();await expect(page).toHaveURL('/csv-to-xlsx/');await expect(page.getByRole('heading',{level:1})).toHaveText('CSV to Excel converter');await page.getByRole('link',{name:'CSV repair',exact:true}).click();await expect(page.getByRole('button',{name:/Browse files/})).toBeVisible();
 });
 test('sample works with production CSP and independently verified text-only XLSX',async({page,context},info)=>{
  const errors:string[]=[];page.on('pageerror',e=>errors.push(e.message));page.on('console',m=>{if(m.type()==='error')errors.push(m.text());});
@@ -41,7 +41,7 @@ test('clear failures for malformed quotes, invalid UTF-8, blank, oversized and u
  }
 });
 test('repair route never loads spreadsheet worker and converter fits narrow screens',async({page})=>{
- const requests:string[]=[];page.on('request',r=>requests.push(r.url()));await page.goto('/');await page.getByLabel('Choose CSV file').setInputFiles({name:'simple.csv',mimeType:'text/csv',buffer:Buffer.from('a,b\n1,2')});await expect(page.getByRole('button',{name:'Download CSV',exact:true})).toBeVisible();expect(requests.some(url=>/worker-|xlsx/.test(url))).toBe(false);
+ const requests:string[]=[];page.on('request',r=>requests.push(r.url()));await page.goto('/csv-repair/');await page.getByLabel('Choose CSV file').setInputFiles({name:'simple.csv',mimeType:'text/csv',buffer:Buffer.from('a,b\n1,2')});await expect(page.getByRole('button',{name:'Download CSV',exact:true})).toBeVisible();expect(requests.some(url=>/worker-|xlsx/.test(url))).toBe(false);
  await page.setViewportSize({width:320,height:740});await page.goto('/csv-to-xlsx/');await page.getByRole('button',{name:'Try sample CSV'}).click();await page.getByRole('button',{name:'Convert to XLSX',exact:true}).click();await expect(page.getByRole('button',{name:'Download Excel (.xlsx)'})).toBeVisible();
  expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBe(true);await page.getByText('Preview text values',{exact:true}).click();expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBe(true);
  const box=await page.getByRole('button',{name:'Download Excel (.xlsx)'}).boundingBox();expect(box!.height).toBeGreaterThanOrEqual(44);

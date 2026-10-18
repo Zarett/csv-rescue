@@ -1,6 +1,6 @@
 import { test, expect } from '@playwright/test';
 test('quote proposals require approval, recover rows, and can be reversed', async ({page}) => {
-  await page.goto('/');
+  await page.goto('/csv-repair/');
   await page.getByLabel('Choose CSV file').setInputFiles({name:'quotes.csv',mimeType:'text/csv',buffer:Buffer.from('id,name,note\n11,Test,"Unclosed quote\n12,Next,Following row\n17,Other,"Multi-line\nnote that is valid"\n20,Last,"Bad "quote" inside field"')});
   const approve = page.getByRole('checkbox',{name:/Apply suggested quote repairs/});
   await expect(approve).not.toBeChecked();
@@ -22,7 +22,7 @@ test('quote proposals require approval, recover rows, and can be reversed', asyn
   await expect(page.getByRole('button',{name:'Before',exact:true})).toHaveAttribute('aria-pressed','true');
 });
 test('upload, review, reversible cleaning and local downloads', async ({page}) => {
-  await page.goto('/');
+  await page.goto('/csv-repair/');
   await page.evaluate(()=>window.scrollTo(0,0));
   await page.screenshot({path:`test-results/${test.info().project.name}-upload.png`,fullPage:true});
   const source = 'name,value,empty\n Ada ,0,\nAda,0,\nBea,,\n,,\n';
@@ -47,4 +47,4 @@ test('upload, review, reversible cleaning and local downloads', async ({page}) =
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
   await page.getByRole('button',{name:'Start over'}).click(); await expect(page.getByRole('button',{name:/Browse files/})).toBeVisible();
 });
-test('preserves structural warnings and supports no header and override',async ({page}) => { await page.goto('/'); await page.getByLabel('Choose CSV file').setInputFiles({name:'plain.txt',mimeType:'text/plain',buffer:Buffer.from('a;b\n1;2;3')}); await expect(page.getByRole('alert')).toContainText('Inconsistent field counts'); await page.getByLabel('First row contains headers').uncheck(); await page.getByLabel('Delimiter',{exact:true}).selectOption(';'); await page.getByRole('link',{name:'3 Preview',exact:true}).click(); await expect(page.getByRole('columnheader',{name:'Column 3'})).toBeVisible(); });
+test('preserves structural warnings and supports no header and override',async ({page}) => { await page.goto('/csv-repair/'); await page.getByLabel('Choose CSV file').setInputFiles({name:'plain.txt',mimeType:'text/plain',buffer:Buffer.from('a;b\n1;2;3')}); await expect(page.getByRole('alert')).toContainText('Inconsistent field counts'); await page.getByLabel('First row contains headers').uncheck(); await page.getByLabel('Delimiter',{exact:true}).selectOption(';'); await page.getByRole('link',{name:'3 Preview',exact:true}).click(); await expect(page.getByRole('columnheader',{name:'Column 3'})).toBeVisible(); });

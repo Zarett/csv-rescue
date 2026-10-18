@@ -2,7 +2,7 @@ import { test, expect } from '@playwright/test';
 test('readable secondary text and responsive layout at narrow, tablet and desktop widths',async ({page})=>{
   for(const width of [320,768,1440]) {
     await page.setViewportSize({width,height:900});
-    await page.goto('/');
+    await page.goto('/csv-repair/');
     expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBe(true);
     const contrasts = await page.evaluate(()=>{
       const luminance=(rgb:number[])=>rgb.map(c=>{const s=c/255;return s<=0.04045?s/12.92:((s+0.055)/1.055)**2.4;}).reduce((sum,v,i)=>sum+v*[0.2126,0.7152,0.0722][i],0);
@@ -17,7 +17,7 @@ test('readable secondary text and responsive layout at narrow, tablet and deskto
 test('processes untrusted data without network requests or browser storage', async ({page}) => {
   const failures: string[] = [];
   page.on('pageerror',e=>failures.push(e.message));
-  const response = await page.goto('/'); await page.waitForLoadState('networkidle');
+  const response = await page.goto('/csv-repair/'); await page.waitForLoadState('networkidle');
   expect(response?.headers()['content-security-policy']).toContain("connect-src 'none'");
   expect(response?.headers()['x-content-type-options']).toBe('nosniff');
   const requests: string[] = [];
@@ -43,7 +43,7 @@ test('processes untrusted data without network requests or browser storage', asy
   expect(requests).toEqual([]); expect(failures).toEqual([]);
 });
 test('blank file error, keyboard navigation, and wide preview remain usable',async ({page})=>{
-  await page.goto('/');
+  await page.goto('/csv-repair/');
   await page.keyboard.press('Tab'); await expect(page.getByRole('link',{name:'Skip to content'})).toBeFocused();
   await page.getByLabel('Choose CSV file').setInputFiles({name:'blank.csv',mimeType:'text/csv',buffer:Buffer.from('\n')});
   await expect(page.getByRole('alert')).toContainText('empty');
