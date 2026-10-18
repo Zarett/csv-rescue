@@ -1,6 +1,33 @@
 import {test,expect,type Page} from '@playwright/test';
 import {independentCells} from '../helpers/xlsx';
+import Papa from 'papaparse';
 async function bytes(page:Page,name:string){const event=page.waitForEvent('download');await page.getByRole('button',{name,exact:true}).click();const download=await event;const stream=await download.createReadStream();const chunks:Buffer[]=[];for await(const chunk of stream!)chunks.push(Buffer.from(chunk));return {download,bytes:Buffer.concat(chunks)};}
+
+test('provider MIME and filenames convert unchanged; replacement, reselection and empty picker events retain correct state',async({page},info)=>{
+ await page.goto('/csv-to-xlsx/');const picker=page.getByLabel('Select CSV for Excel conversion');await expect(picker).not.toHaveAttribute('accept');
+ const source=Buffer.from('id,note\n00123,"  müşteri 😀  "\n12345678901234567890,-12.50\n');
+ for(const name of ['test.csv','csv_rescue_stress_test.csv','csv_rescue_stress_test_cleaned.csv','csv_rescue_stress_test_cleaned (1).csv','very-long-csv-filename-with-multiple-sections.csv','müşteri_verileri_2026.csv','report.CSV','report.csv.csv'])for(const mimeType of ['text/csv','text/plain','application/octet-stream','']){
+  await picker.setInputFiles({name,mimeType,buffer:source});await expect(page.locator('.selected-file')).toContainText(name);await expect(page.getByRole('button',{name:'Download Excel (.xlsx)'})).toHaveCount(0);await expect(page.getByRole('alert')).toHaveCount(0);
+  await page.getByRole('button',{name:'Convert to XLSX',exact:true}).click();await expect(page.getByRole('status')).toContainText('Ready: 3 rows');
+  expect(independentCells((await bytes(page,'Download Excel (.xlsx)')).bytes).map(c=>c.value)).toEqual(['id','note','00123','  müşteri 😀  ','12345678901234567890','-12.50']);
+ }
+ await picker.setInputFiles([]);await expect(page.locator('.selected-file')).toContainText('report.csv.csv');await expect(page.getByRole('button',{name:'Download Excel (.xlsx)'})).toBeVisible();expect((await bytes(page,'Download original unchanged')).bytes).toEqual(source);
+ await picker.setInputFiles({name:'broken.csv',mimeType:'text/plain',buffer:Buffer.from('a,b\n1,"open')});await page.getByRole('button',{name:'Convert to XLSX',exact:true}).click();await expect(page.getByRole('alert')).toContainText('Malformed CSV');await picker.setInputFiles([]);await expect(page.getByRole('alert')).toContainText('Malformed CSV');
+ const replacement={name:'report.CSV',mimeType:'',buffer:source};await picker.setInputFiles(replacement);await expect(page.getByRole('alert')).toHaveCount(0);await page.getByRole('button',{name:'Convert to XLSX',exact:true}).click();await expect(page.getByRole('status')).toContainText('Ready:');
+ await picker.setInputFiles(replacement);await expect(page.getByRole('button',{name:'Download Excel (.xlsx)'})).toHaveCount(0);await page.getByRole('button',{name:'Convert to XLSX',exact:true}).click();await expect(page.getByRole('status')).toContainText('Ready:');await (await bytes(page,'Download Excel (.xlsx)')).download.saveAs(info.outputPath('provider-filenames.xlsx'));
+});
+
+test('reviewed repair export reimports verbatim into text-only XLSX',async({page},info)=>{
+ const source=Buffer.from('id,note\r\n00123,"open\r\n00042,next\r\n00008,other,EXTRA\r\n00007,"valid\r\nmultiline"\r\n');
+ await page.goto('/csv-to-xlsx/');await page.getByLabel('Select CSV for Excel conversion').setInputFiles({name:'original.csv',mimeType:'text/csv',buffer:source});await page.getByRole('button',{name:'Convert to XLSX',exact:true}).click();await expect(page.getByRole('alert')).toContainText('Malformed CSV');
+ await page.getByRole('link',{name:'Open CSV repair',exact:true}).click();await page.getByLabel('Choose CSV file').setInputFiles({name:'original.csv',mimeType:'text/csv',buffer:source});await page.getByRole('link',{name:'2 Clean',exact:true}).click();
+ const approval=page.getByLabel(/Apply suggested quote repairs/);await expect(approval).toBeDisabled();await page.getByText('Review 1 changed physical lines',{exact:true}).click();await page.getByLabel('I reviewed line 2',{exact:true}).check();await approval.check();await approval.uncheck();await expect(page.getByRole('alert')).toContainText('CSV parsing warning');await approval.check();
+ await page.getByRole('switch',{name:'Pad missing fields',exact:true}).check();await page.getByRole('switch',{name:'Name extra fields',exact:true}).check();await expect(page.getByRole('alert')).toHaveCount(0);
+ expect((await bytes(page,'Download original unchanged')).bytes).toEqual(source);
+ const cleaned=await bytes(page,'Download CSV');await cleaned.download.saveAs(info.outputPath('repair-conversion.csv'));const parsed=Papa.parse<string[]>(cleaned.bytes.toString());expect(parsed.errors.filter(e=>e.code!=='UndetectableDelimiter')).toEqual([]);expect(parsed.data).toEqual([['id','note','Extra field 3'],['00123','open',''],['00042','next',''],['00008','other','EXTRA'],['00007','valid\r\nmultiline','']]);
+ await page.getByRole('navigation',{name:'Tools',exact:true}).getByRole('link',{name:'CSV to Excel',exact:true}).click();await page.getByLabel('Select CSV for Excel conversion').setInputFiles(info.outputPath('repair-conversion.csv'));await page.getByRole('button',{name:'Convert to XLSX',exact:true}).click();await expect(page.getByRole('status')).toContainText('Ready: 5 rows, 3 maximum columns');
+ expect((await bytes(page,'Download original unchanged')).bytes).toEqual(cleaned.bytes);const workbook=await bytes(page,'Download Excel (.xlsx)');expect(independentCells(workbook.bytes).map(c=>c.value)).toEqual(parsed.data.flat());await workbook.download.saveAs(info.outputPath('repair-conversion.xlsx'));
+});
 
 test('worker preserves BOM-prefixed field text and overlapping OOXML escapes',async({page},info)=>{
  await page.goto('/csv-to-xlsx/');
