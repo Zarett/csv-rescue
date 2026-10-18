@@ -1,5 +1,7 @@
 # Cloudflare Pages release procedure
 
+Current update: the owner has deployed v1.0 to `https://csv-rescue-app.pages.dev/`. The owner approved the v1.1.0 CSV-to-XLSX release on 18 October 2026. Its build remains `npm run build`, output `dist`; Vite now emits both `index.html` and `csv-to-xlsx/index.html`. No server functions or new environment variables are required. Verify the new route, sitemap, canonical host, worker download/CSP and original-byte download after deployment. Main-branch pushes trigger the existing Git-integrated deployment; verify successful completion before announcing availability. The older initial-release instructions below are historical.
+
 Status: MIT is active and source is published at https://github.com/Zarett/csv-rescue with the owner's approval. The initial release commit is `c2b1341`. No Cloudflare project or deployment has been created; Cloudflare deployment still requires separate approval.
 
 The GitHub publication steps below are retained as a reference and are already completed. Continue with Pages dashboard settings only after deployment approval.

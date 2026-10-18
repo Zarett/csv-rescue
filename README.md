@@ -4,9 +4,11 @@
 
 A lightweight CSV cleaner that runs entirely in your browser. Upload a messy file, review its issues, choose your fixes, and download the result. Free to use, with no accounts, backend, or tracking.
 
+Live CSV repair: [csv-rescue-app.pages.dev](https://csv-rescue-app.pages.dev/). Version 1.1.0 adds the standalone [CSV to Excel converter](https://csv-rescue-app.pages.dev/csv-to-xlsx/). See [conversion evaluation and release report](docs/CSV_TO_XLSX_RELEASE.md).
+
 ![CSV Rescue upload screen](docs/screenshots/upload-desktop.png)
 
-Version **1.0.0 release candidate** · [Release summary](CHANGELOG.md) · [QA report](RELEASE.md)
+Version **1.1.0** · [Release summary](CHANGELOG.md) · [QA report](RELEASE.md)
 
 Built as a portfolio product in AI-assisted product development: deterministic local processing, explicit human review for ambiguous repairs, and tested data-preservation boundaries. No AI model or paid API runs in the application.
 
@@ -94,6 +96,20 @@ Normal requests to load the static site still reach the hosting provider. Host l
 
 ## Architecture
 
+### CSV to XLSX
+
+The standalone `/csv-to-xlsx/` page provides file selection, drag/drop and a synthetic sample. Conversion is separate from repair: no trimming, deduplication, type inference or heuristic quote edits. Malformed quoting blocks conversion and links to the existing repair tool.
+
+Every field becomes text in one `CSV data` worksheet, including headers, leading zeros, long IDs, date-like strings, negative values and formula-like content. Excel calculations require explicitly converting text cells afterward. Empty fields and extra fields are retained; absent worksheet cells stay blank. CSV syntax/line endings and absent-versus-empty distinctions are not losslessly represented by a workbook.
+
+UTF-8 only; **2 MB input, 100,000 rows, 256 columns, 200,000 fields, 32,767 UTF-16 code units per cell**, with additional checks after OOXML escape encoding. Unsupported control characters are rejected, never removed. A 30-second timeout and cancellation terminate the conversion worker; output is capped at 20 MB. Limits reduce risk but do not guarantee memory availability on every device.
+
+`src/conversion/csv.ts` validates/parses text independently of cleaning; `workbook.ts` writes explicit string cells and protects literal OOXML escape sequences; `worker.ts` owns decoding/parsing/writing; `Converter.tsx` owns temporary UI state. SheetJS CE 0.20.3 is pinned to its official package URL with lockfile integrity. It has no runtime package dependencies. The library is bundled inside a same-origin worker loaded **only when conversion starts**, never by CSV repair. No runtime CDN or CSP relaxation is used.
+
+The landing page is static Vite HTML with unique metadata/canonical URL, useful crawlable instructions, FAQs and internal links. `public/sitemap.xml` and `robots.txt` include only implemented routes. No XLSX/XLS import, worksheet selection, formula calculation, styling editor or numeric/date inference is implemented.
+
+### CSV repair
+
 React, strict TypeScript, Vite, Tailwind CSS, Papa Parse, and Lucide. No server application or database.
 
 ```text
@@ -133,13 +149,23 @@ npm run preview
 
 E2E tests build production assets and run them through a local-only QA static server with the declared Pages headers. They cover desktop/mobile workflows, quote approvals, download bytes, blank/uneven/wide files, HTML-like cells, no runtime processing requests, empty browser storage, keyboard entry, selected text contrast, and layouts at 320/768/1440 pixels. Playwright normally installs browsers in a user cache; set `PLAYWRIGHT_BROWSERS_PATH` first if you need a different location.
 
+Conversion tests additionally inspect generated ZIP/XML independently of SheetJS, verify actual browser downloads, text-only cells, literal OOXML escapes, whitespace, empty values, cancellation, strict UTF-8, resource limits, worker CSP, static HTML without JavaScript, and lazy loading. After E2E, an optional independent Python check uses only the standard library:
+
+```sh
+python tests/verify-xlsx-downloads.py
+# If openpyxl is already installed, also verify with that reader:
+python tests/verify-xlsx-downloads.py --openpyxl
+```
+
+Python/openpyxl are QA tools, not application or npm-test dependencies. No extra browser download is needed if a compatible Playwright Chromium is already installed.
+
 Unit tests cover supported parsing formats, the original 16 cleanup-toggle combinations plus all 64 combinations including structural alignment, source immutability, zero values, empty-record preservation, ragged-row serialization, malformed-quote proposals, and formula handling. See [release report](RELEASE.md) for actual run results and remaining limits.
 
 ## Deployment
 
 Prepared for **Cloudflare Pages**: build **`npm run build`**, output **`dist`**, Node version in `.node-version`. No runtime bindings or secrets are needed. See [deployment procedure](DEPLOYMENT.md) for configuration and post-deployment checks.
 
-Source repository: [Zarett/csv-rescue](https://github.com/Zarett/csv-rescue), published with the owner's approval. The application has not been deployed to Cloudflare Pages; deployment requires separate approval.
+Source repository: [Zarett/csv-rescue](https://github.com/Zarett/csv-rescue). The owner deployed v1.0 at [csv-rescue-app.pages.dev](https://csv-rescue-app.pages.dev/). The owner approved the v1.1.0 conversion release; main-branch updates use the existing Cloudflare Pages deployment.
 
 ## Limits and roadmap
 
@@ -149,10 +175,10 @@ Source repository: [Zarett/csv-rescue](https://github.com/Zarett/csv-rescue), pu
 - No manual cell editing, inferred missing values, schema validation, email validation, or date/age normalization.
 - Chromium desktop/mobile tests and selected contrast checks are not certification of every browser or assistive technology.
 
-Future work (not implemented): encoding conversion, type detection, date/country/phone normalization, column mapping, CSV comparisons, reusable recipes, batch processing, JSON/Excel import/export, Web Workers, and manual-edit history.
+Future work (not implemented): encoding conversion, type detection, date/country/phone normalization, column mapping, CSV comparisons, reusable recipes, batch processing, JSON and Excel import, workers for the existing CSV repair workflow, and manual-edit history.
 
 ## License
 
 Original project code is licensed under the **MIT License**, approved by the owner for v1.0. See [LICENSE](LICENSE). Dependencies retain their own license terms.
 
-Bundled dependency licenses remain in force independently. React, React DOM, Scheduler, and Papa Parse use MIT; Lucide uses ISC with its embedded Feather notices. Complete production dependency notices are retained in [THIRD_PARTY_NOTICES.txt](public/THIRD_PARTY_NOTICES.txt) and copied into the built distribution. No new dependency was added during release preparation.
+Bundled dependency licenses remain in force independently. React, React DOM, Scheduler, and Papa Parse use MIT; Lucide uses ISC with its embedded Feather notices. The conversion worker adds SheetJS CE under Apache-2.0. Complete production dependency notices are retained in [THIRD_PARTY_NOTICES.txt](public/THIRD_PARTY_NOTICES.txt) and copied into the built distribution. The original application remains MIT.

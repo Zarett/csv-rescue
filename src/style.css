@@ -1,4 +1,5 @@
 @import "tailwindcss";
+.tool-link{font-size:12px;min-height:44px;display:inline-flex;align-items:center;text-decoration:underline}@media(max-width:540px){.header-right{gap:12px}}
 .table-caption{display:block}
 .quote-panel{padding:20px;margin:18px 0;line-height:1.7}.quote-panel p{font-size:12px;color:#5c7065;margin:8px 0}.quote-panel details{margin:14px 0}.quote-panel summary{cursor:pointer;font-weight:600}.quote-panel article{margin:15px 0;font-size:12px}.quote-diff{display:grid;grid-template-columns:1fr 1fr;gap:12px}.quote-diff>div{min-width:0}.quote-diff pre{white-space:pre-wrap;overflow-wrap:anywhere;background:#f3f6f3;padding:12px;border:1px solid #dae4dc;border-radius:6px;font-size:11px}.quote-panel label{display:flex;gap:9px;align-items:baseline;font-weight:600;font-size:12px}@media(max-width:540px){.quote-diff{grid-template-columns:1fr}}
 

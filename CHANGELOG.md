@@ -1,3 +1,16 @@
+# CSV Rescue 1.1.0 — CSV to Excel conversion
+
+Release approved 18 October 2026.
+
+- Review follow-up: preserve overlapping OOXML escape-like sequences and normalize the UTF-8 signature exactly once, retaining a following intentional U+FEFF. Regression checks cover both actual desktop/mobile XLSX downloads and unchanged originals.
+
+- Add a standalone, static `/csv-to-xlsx/` landing page for CSV to Excel conversion, with route metadata, canonical URL, sitemap and internal tool navigation.
+- Add local file selection, drag/drop, a synthetic sample, delimiter selection, text-only XLSX generation, preview, cancellation and exact original download.
+- Preserve string values without type inference, cleanup or formula execution. Protect literal OOXML escape sequences; reject unsupported values instead of truncating.
+- Lazy-load a same-origin worker using pinned SheetJS CE 0.20.3; retain existing CSP and add Apache-2.0 notices. CSV repair never loads the workbook worker.
+- Add independent XLSX validation, production desktop/mobile regression tests, resource-limit checks and SEO/privacy checks.
+- No XLSX/XLS imports are included. The owner approved commit, push and deployment. See [evaluation and results](docs/CSV_TO_XLSX_RELEASE.md).
+
 # CSV Rescue 1.0.0 — release candidate
 
 Prepared 17 October 2026. MIT licensing approved by the owner. GitHub source publication was subsequently authorized and completed at https://github.com/Zarett/csv-rescue. Cloudflare deployment remains on hold.
